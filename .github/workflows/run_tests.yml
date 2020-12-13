@@ -92,7 +92,7 @@ jobs:
         path: rubygems
         ref: specific_platform_regression
     - name: Install branch with fix
-      run: ruby setup.rb
+      run: cp ../lazy_specification.rb bundler/lib/bundler && ruby setup.rb
       working-directory: rubygems
     - uses: actions/cache@v2
       if: ${{ env.CACHE_DEPENDENCIES == 'true' }}
