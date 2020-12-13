@@ -94,9 +94,13 @@ module Bundler
         platform_object = Gem::Platform.new(platform)
         STDOUT.puts "source.specs: #{source.specs.map(&:full_name)}"
         candidates = source.specs.search(search_object)
+        STDOUT.puts "candidates: #{candidates.map(&:full_name)}"
+        STDOUT.puts "source.specs.local_search(search_object): #{source.specs.local_search(search_object).map(&:full_name)}"
+        STDOUT.puts "source.specs.send(:specs_by_name, name): #{source.specs.send(:specs_by_name, name).map(&:full_name)}"
         same_platform_candidates = candidates.select do |spec|
           MatchPlatform.platforms_match?(spec.platform, platform_object)
         end
+        STDOUT.puts "same_platform_candidates.map(&:full_name): #{same_platform_candidates.map(&:full_name)}"
         search = same_platform_candidates.last || candidates.last
         search.dependencies = dependencies if search && (search.is_a?(RemoteSpecification) || search.is_a?(EndpointSpecification))
         search
