@@ -18,7 +18,7 @@ env:
   MYSQL_USER: root
   MYSQL_PASSWORD: root
   # This set to false for run_tests_on_head by the rakefile
-  CACHE_DEPENDENCIES: 'true'
+  CACHE_DEPENDENCIES: 'false'
   # Dumb workaround since it's not possible to clear caches in Github Actions
   CACHE_VERSION: '3'
 
@@ -45,9 +45,6 @@ jobs:
           POSTGRES_USER: ${{env.PGUSER}}
           POSTGRES_PASSWORD: ${{env.PGUSER}}
 
-    env:
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
-      BUNDLE_PATH: vendor/bundle
 
     steps:
     - uses: actions/checkout@v2
@@ -56,15 +53,6 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby_version }}
-        bundler: none
-    - uses: actions/checkout@v2
-      with:
-        repository: rubygems/rubygems
-        path: rubygems
-        ref: specific_platform_regression
-    - name: Install branch with fix
-      run: cp ../lazy_specification.rb bundler/lib/bundler && ruby setup.rb
-      working-directory: rubygems
     - uses: actions/cache@v2
       if: ${{ env.CACHE_DEPENDENCIES == 'true' }}
       with:
@@ -75,11 +63,12 @@ jobs:
         restore-keys: ${{ runner.os }}-gems-${{ env.CACHE_VERSION }}-ruby${{ matrix.ruby_version }}-${{ matrix.gemfile }}
     - name: Install dependencies
       run: |
+        bundle config path vendor/bundle
+        bundle config gemfile ${{ matrix.gemfile }}
         bundle install --jobs 4 --retry 3
-        bundle list
     - run: psql --host=localhost --port=5432 -c 'CREATE DATABASE activerecord_where_assoc'
     - run: mysql -h 127.0.0.1 -u "${{ env.MYSQL_USER }}" -p${{ env.MYSQL_PASSWORD }} -e 'CREATE DATABASE activerecord_where_assoc'
-    - run: DB=sqlite3 bundle exec rake test --trace
+    - run: DB=sqlite3 bundle exec rake test
     - run: DB=pg bundle exec rake test
     - run: DB=mysql bundle exec rake test
       # MySQL build segfaults on older ruby version, no idea why and painful to debug, so just skip them.
