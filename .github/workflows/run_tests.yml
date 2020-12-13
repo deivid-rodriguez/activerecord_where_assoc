@@ -30,38 +30,6 @@ jobs:
         include:
           - gemfile: gemfiles/rails_6_1.gemfile
             ruby_version: 2.7
-          - gemfile: gemfiles/rails_6_1.gemfile
-            ruby_version: 2.5
-
-          - gemfile: gemfiles/rails_6_0.gemfile
-            ruby_version: 2.7
-          - gemfile: gemfiles/rails_6_0.gemfile
-            ruby_version: 2.5
-
-          - gemfile: gemfiles/rails_5_2.gemfile
-            ruby_version: 2.6
-          - gemfile: gemfiles/rails_5_2.gemfile
-            ruby_version: 2.3
-
-          - gemfile: gemfiles/rails_5_1.gemfile
-            ruby_version: 2.5
-          - gemfile: gemfiles/rails_5_1.gemfile
-            ruby_version: 2.2
-
-          - gemfile: gemfiles/rails_5_0.gemfile
-            ruby_version: 2.4
-          - gemfile: gemfiles/rails_5_0.gemfile
-            ruby_version: 2.2
-
-          - gemfile: gemfiles/rails_4_2.gemfile
-            ruby_version: 2.4
-          - gemfile: gemfiles/rails_4_2.gemfile
-            ruby_version: 2.1
-
-          - gemfile: gemfiles/rails_4_1.gemfile
-            ruby_version: 2.3
-          - gemfile: gemfiles/rails_4_1.gemfile
-            ruby_version: 2.1
 
     runs-on: ubuntu-latest
     services:
@@ -110,7 +78,7 @@ jobs:
         bundle list
     - run: psql --host=localhost --port=5432 -c 'CREATE DATABASE activerecord_where_assoc'
     - run: mysql -h 127.0.0.1 -u "${{ env.MYSQL_USER }}" -p${{ env.MYSQL_PASSWORD }} -e 'CREATE DATABASE activerecord_where_assoc'
-    - run: DB=sqlite3 bundle exec rake test
+    - run: DB=sqlite3 bundle exec rake test --trace
     - run: DB=pg bundle exec rake test
     - run: DB=mysql bundle exec rake test
       # MySQL build segfaults on older ruby version, no idea why and painful to debug, so just skip them.
